@@ -11,13 +11,13 @@ BLOCK_SIZE = 24
 BLOCK_GAP = 4
 frame_time = 0.01
 
-thegame = Game(16, 16)
+thegame = Game(20, 20)
 thegame.start()
 
 dirMap = {1: Direction.LEFT, 2: Direction.RIGHT, 0: Direction.UP}
 
 model = LinearQNet(len(thegame.get_state()), 256, len(dirMap))
-model.load("model_save.tch")
+model.load("model.tch")
 
 # pygame setup
 pygame.init()
@@ -33,13 +33,9 @@ def to_rect(pos: (int, int)):
 def draw(game: Game):
     #walls
     for i in range(game.w + 2):
-        g = 0
-        if i > 0:
-            g = BLOCK_GAP
         pygame.Surface.fill(screen, "gray", to_rect([i-1,-1]))
         pygame.Surface.fill(screen, "gray", to_rect([i-1, game.h]))
     for i in range(game.h):
-        g = BLOCK_GAP
         pygame.Surface.fill(screen, "gray", to_rect([-1, i]))
         pygame.Surface.fill(screen, "gray", to_rect([game.h, i]))
     #apple

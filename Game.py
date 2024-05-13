@@ -5,8 +5,8 @@ from enum import Enum
 from random import randrange
 from typing import Optional, Tuple
 
-
 random.seed(1)
+
 
 class Direction(Enum):
     UP = 1
@@ -35,9 +35,10 @@ class Snake:
         self.starve_count -= 1
         self.body = [Point(self.body[0].x + self.dir.x, self.body[0].y + self.dir.y)] + self.body[:-1]
 
-    def grow(self, tail:Point):
+    def grow(self, tail: Point):
         self.starve_count = 0
         self.body.append(tail)
+
 
 class Game:
     apple: Optional[Point]
@@ -117,90 +118,77 @@ class Game:
         dir = self.snake.dir
 
         def wall_dist(d: Point) -> float:
-            dst=0
+            dst = 0
             if d.x > 0:
                 dst = self.w - head.x
             elif d.x < 0:
-                dst = head.x+1
+                dst = head.x + 1
             elif d.y > 0:
                 dst = self.h - head.y
             elif d.y < 0:
-                dst = head.y+1
+                dst = head.y + 1
 
-            return 1/(1+ dst)
+            return 1 / (1 + dst)
 
         def body_dist(d: Point) -> float:
-            dst = self.w*self.w + self.h*self.h
+            dst = self.w * self.w + self.h * self.h
 
             #left
-            if d.x<0 and d.y==0:
+            if d.x < 0 and d.y == 0:
                 for b in self.snake.body[1:]:
                     if b.y == head.y and b.x < head.x:
-                        dst = min(dst, (head.x - b.x)**2)
+                        dst = min(dst, (head.x - b.x) ** 2)
             #up-left
-            if d.x<0 and d.y<0:
+            if d.x < 0 and d.y < 0:
                 for b in self.snake.body[1:]:
-                    if b.y-b.x == head.y-head.x and b.y < head.y:
-                        dst = min(dst, (head.y - b.y)**2 + (head.x - b.x)**2)
+                    if b.y - b.x == head.y - head.x and b.y < head.y:
+                        dst = min(dst, (head.y - b.y) ** 2 + (head.x - b.x) ** 2)
             #up
-            if d.x==0 and d.y<0:
+            if d.x == 0 and d.y < 0:
                 for b in self.snake.body[1:]:
                     if b.x == head.x and b.y < head.y:
-                        dst = min(dst, (head.y - b.y)**2)
+                        dst = min(dst, (head.y - b.y) ** 2)
             #up-right
-            if d.x>0 and d.y<0:
+            if d.x > 0 and d.y < 0:
                 for b in self.snake.body[1:]:
-                    if b.y+b.x == head.y+head.x and b.y < head.y:
-                        dst = min(dst, (head.y - b.y)**2 + (head.x - b.x)**2)
+                    if b.y + b.x == head.y + head.x and b.y < head.y:
+                        dst = min(dst, (head.y - b.y) ** 2 + (head.x - b.x) ** 2)
             #right
-            if d.x>0 and d.y==0:
+            if d.x > 0 and d.y == 0:
                 for b in self.snake.body[1:]:
                     if b.y == head.y and b.x > head.x:
-                        dst = min(dst, (head.x - b.x)**2)
+                        dst = min(dst, (head.x - b.x) ** 2)
             #bottom-right
-            if d.x>0 and d.y>0:
+            if d.x > 0 and d.y > 0:
                 for b in self.snake.body[1:]:
-                    if b.y-b.x == head.y-head.x and b.y > head.y:
-                        dst = min(dst, (head.y - b.y)**2 + (head.x - b.x)**2)
+                    if b.y - b.x == head.y - head.x and b.y > head.y:
+                        dst = min(dst, (head.y - b.y) ** 2 + (head.x - b.x) ** 2)
 
             #bottom
-            if d.x==0 and d.y>0:
+            if d.x == 0 and d.y > 0:
                 for b in self.snake.body[1:]:
                     if b.x == head.x and b.y > head.y:
-                        dst = min(dst, (head.y - b.y)**2)
+                        dst = min(dst, (head.y - b.y) ** 2)
             #bottom-left
-            if d.x<0 and d.y>0:
+            if d.x < 0 and d.y > 0:
                 for b in self.snake.body[1:]:
-                    if b.y+b.x == head.y+head.x and b.y > head.y:
-                        dst = min(dst, (head.y - b.y)**2 + (head.x - b.x)**2)
+                    if b.y + b.x == head.y + head.x and b.y > head.y:
+                        dst = min(dst, (head.y - b.y) ** 2 + (head.x - b.x) ** 2)
 
-            return 1/(1+ math.sqrt(dst))
+            return 1 / (1 + math.sqrt(dst))
 
-        def apple_loc(d: Point) -> float:
-            dst=(self.apple.x - head.x)**2+(self.apple.y - head.y)**2
-            if dst==0:
+        def apple_ang(dir: Point) -> float:
+            if self.apple == head:
                 return 0
 
-            if(d.x>0):
-                if self.apple.y < head.y:
-                    return math.acos((self.apple.x - head.x)/math.sqrt(dst))
-                else:
-                    return -math.acos((self.apple.x - head.x)/math.sqrt(dst))
-            if(d.x<0):
-                if self.apple.y > head.y:
-                    return math.acos((-self.apple.x + head.x)/math.sqrt(dst))
-                else:
-                    return -math.acos((-self.apple.x + head.x)/math.sqrt(dst))
-            if(d.y>0):
-                if self.apple.x > head.x:
-                    return math.acos((self.apple.y - head.y)/math.sqrt(dst))
-                else:
-                    return -math.acos((self.apple.y - head.y)/math.sqrt(dst))
-            if(d.y<0):
-                if self.apple.x < head.x:
-                    return math.acos((-self.apple.y + head.y)/math.sqrt(dst))
-                else:
-                    return -math.acos((-self.apple.y + head.y)/math.sqrt(dst))
+            # tan(ang) = A x B / A dot B
+            # A = head to apple vector
+            # B = dir vector
+            h2a = Point(self.apple.x - head.x, self.apple.y - head.y)
+            crs_prod = h2a.x * dir.y - h2a.y * dir.x
+            dot_prod = h2a.x * dir.x + h2a.y * dir.y
+            return math.atan2(crs_prod, dot_prod)
+
 
         return ([
 
@@ -208,14 +196,14 @@ class Game:
             wall_dist(Point(dir.y, -dir.x)),
             wall_dist(Point(-dir.y, dir.x)),
 
-            body_dist(dir),#f
-            body_dist(Point(dir.y, -dir.x)),#l
-            body_dist(Point(-dir.y, dir.x)),#r
+            body_dist(dir),  #f
+            body_dist(Point(dir.y, -dir.x)),  #l
+            body_dist(Point(-dir.y, dir.x)),  #r
 
-            body_dist(Point(dir.y+dir.x, dir.y-dir.x)),#forward-left
-            body_dist(Point(dir.y-dir.x, -dir.y-dir.x)),#backward-left
-            body_dist(Point(-dir.y-dir.x, -dir.y+dir.x)),#backward-right
-            body_dist(Point(-dir.y+dir.x, dir.y+dir.x)),
+            body_dist(Point(dir.y + dir.x, dir.y - dir.x)),  #forward-left
+            body_dist(Point(dir.y - dir.x, -dir.y - dir.x)),  #backward-left
+            body_dist(Point(-dir.y - dir.x, -dir.y + dir.x)),  #backward-right
+            body_dist(Point(-dir.y + dir.x, dir.y + dir.x)),
 
-            apple_loc(dir)/3.1416,
+            apple_ang(dir) / math.pi,
         ])

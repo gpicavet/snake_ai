@@ -77,11 +77,14 @@ def train():
         reward, done, score = game.step()
         state_new = np.array(game.get_state(), dtype=float)
 
+        move_arr = [0, 0, 0]
+        move_arr[move] = 1
+
         # train short memory
-        agent.train_short_memory(state_old, move, reward, state_new, done)
+        agent.train_short_memory(state_old, move_arr, reward, state_new, done)
 
         # remember
-        agent.remember(state_old, move, reward, state_new, done)
+        agent.remember(state_old, move_arr, reward, state_new, done)
 
         if done:
 
